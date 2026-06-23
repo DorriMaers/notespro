@@ -6,13 +6,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let db;
 
-    // Ограничиваем выбор даты в календаре: запрещаем дни до сегодняшнего
+    // Ограничиваем выбор даты в календаре (только от сегодняшнего дня)
     function setMinDeadlineDate() {
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
-        deadlineInput.min = `${year}-${month}-${day}`; // Атрибут min блокирует прошлые дни в календаре
+        deadlineInput.min = `${year}-${month}-${day}`;
     }
     setMinDeadlineDate();
 
@@ -31,32 +31,32 @@ document.addEventListener("DOMContentLoaded", function() {
         displayTodos();
     };
 
-    request.onerror = function() {
-        console.error("Ошибка при работе с базой данных");
-    };
-
     // Добавление новой задачи
     form.addEventListener("submit", function(e) {
         e.preventDefault();
         
         const now = new Date();
-        
-        // Корректный разбор даты дедлайна из инпута (по местному времени, а не UTC)
-        const [year, month, day] = deadlineInput.value.split('-').map(Number);
-        const deadlineDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+        let deadlineTimestamp = null; // По умолчанию дедлайна нет
 
-        // Дополнительная JS-проверка, чтобы точно нельзя было сохранить прошлый день
-        const startOfToday = new Date();
-        startOfToday.setHours(0,0,0,0);
-        if (deadlineDate < startOfToday) {
-            alert("Нельзя выбрать дедлайн в прошлом!");
-            return;
+        // Если пользователь выбрал дату
+        if (deadlineInput.value) {
+            const [year, month, day] = deadlineInput.value.split('-').map(Number);
+            const deadlineDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+            const startOfToday = new Date();
+            startOfToday.setHours(0,0,0,0);
+            
+            if (deadlineDate < startOfToday) {
+                alert("Нельзя выбрать дедлайн в прошлом!");
+                return;
+            }
+            deadlineTimestamp = deadlineDate.getTime();
         }
 
         const newTodo = {
             text: input.value,
-            createdAt: now.getTime(), // Храним timestamp чисел для точных математических сравнений
-            deadline: deadlineDate.getTime(),
+            createdAt: now.getTime(),
+            deadline: deadlineTimestamp, // Тут будет либо число, либо null
             completed: false
         };
 
@@ -66,12 +66,12 @@ document.addEventListener("DOMContentLoaded", function() {
         store.add(newTodo).onsuccess = function() {
             input.value = "";
             deadlineInput.value = "";
-            setMinDeadlineDate(); // Пересчитываем минимальную дату
+            setMinDeadlineDate();
             displayTodos();
         };
     });
 
-    // Отображение и умная сортировка
+    // Отображение и сортировка
     function displayTodos() {
         if (!db) return;
         todoList.innerHTML = "";
@@ -86,35 +86,40 @@ document.addEventListener("DOMContentLoaded", function() {
             todos.forEach(todo => {
                 if (todo.completed) {
                     todo.status = 'completed';
-                    todo.sortWeight = 4; // Выполненные задачи падают вниз
+                    todo.sortWeight = 5; // Выполненные — всегда в самом низу
+                } else if (todo.deadline === null) {
+                    todo.status = 'normal';
+                    todo.sortWeight = 4; // Без дедлайна — пониженный приоритет (ниже обычных с дедлайном)
                 } else if (now > todo.deadline) {
                     todo.status = 'overdue';
-                    todo.sortWeight = 1; // Просроченные — на самый верх
+                    todo.sortWeight = 1; // Просроченные — самый верх
                 } else {
                     const totalDuration = todo.deadline - todo.createdAt;
                     const timeRemaining = todo.deadline - now;
                     
-                    // Если осталось меньше или равно 30% времени от момента создания до дедлайна
                     if (totalDuration > 0 && (timeRemaining / totalDuration) <= 0.3) {
                         todo.status = 'warning';
-                        todo.sortWeight = 2; // Дедлайн близко — второй по важности приоритет
+                        todo.sortWeight = 2; // Желтые (горит)
                     } else {
                         todo.status = 'normal';
-                        todo.sortWeight = 3; // Все хорошо
+                        todo.sortWeight = 3; // Синие (все ок, дедлайн нескоро)
                     }
                 }
             });
 
-            // Сортировка: Сначала по sortWeight (1 -> 2 -> 3 -> 4). 
-            // При равном весе — те, у кого дедлайн ближе всего, стоят выше.
+            // Сортировка по весу, а при равном весе — по дате дедлайна / создания
             todos.sort((a, b) => {
                 if (a.sortWeight !== b.sortWeight) {
                     return a.sortWeight - b.sortWeight;
                 }
+                // Если обе задачи без дедлайна, сортируем их по дате создания (новые выше)
+                if (a.deadline === null && b.deadline === null) {
+                    return b.createdAt - a.createdAt;
+                }
                 return a.deadline - b.deadline;
             });
 
-            // Рендер элементов списка
+            // Рендер
             todos.forEach(todo => {
                 const li = document.createElement("li");
                 
@@ -125,10 +130,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 const dateCreatedStr = new Date(todo.createdAt).toLocaleDateString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-                const dateDeadlineStr = new Date(todo.deadline).toLocaleDateString('ru-RU');
+                
+                // Проверяем: выводить дату или красивую надпись
+                const dateDeadlineStr = todo.deadline 
+                    ? new Date(todo.deadline).toLocaleDateString('ru-RU') 
+                    : "без дедлайна";
 
                 li.innerHTML = `
-                    <div style="flex: 1;">
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start;">
                         <span class="todo-text">${todo.text}</span>
                         <span class="todo-dates">Создано: ${dateCreatedStr} | Дедлайн: ${dateDeadlineStr}</span>
                     </div>

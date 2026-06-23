@@ -325,6 +325,16 @@ li {
     font-weight: 400; /* Обычная толщина для контраста с заголовком */
 }
 
+/* Трюк для создания плейсхолдера в инпуте даты */
+input[type="date"].date-placeholder:not(:focus):::-webkit-datetime-edit {
+    color: transparent;
+}
+input[type="date"].date-placeholder:not(:focus)::before {
+    content: "Без дедлайна";
+    color: #64748b;
+    position: absolute;
+}
+
 /* ==========================================
    ИСПРАВЛЕННАЯ МОБИЛЬНАЯ АДАПТАЦИЯ (экраны < 600px)
    ========================================== */
