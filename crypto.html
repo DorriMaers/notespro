@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд | Крипто-Радар</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <div class="container">
+        <nav class="navigation">
+            <a href="index.html" class="nav-btn">Задачи</a>
+            <a href="weather.html" class="nav-btn">Погода</a>
+            <a href="finance.html" class="nav-btn">Финансы</a>
+            <a href="crypto.html" class="nav-btn active">Крипта</a>
+        </nav>
+
+        <h1>Крипто-Радар</h1>
+        <p class="subtitle">Обновление в реальном времени (каждые 20 сек)</p>
+
+        <div id="crypto-container">
+            <p class="loading">Подключение к биржевому API...</p>
+        </div>
+    </div>
+    <script src="scripts/crypto.js"></script>
+</body>
+</html>

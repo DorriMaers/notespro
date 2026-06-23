@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд | Погода</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container" style="max-width: 650px;"> <nav class="navigation">
+            <a href="index.html" class="nav-btn">Задачи</a>
+            <a href="weather.html" class="nav-btn active">Погода</a>
+            <a href="finance.html" class="nav-btn">Финансы</a>
+            <a href="crypto.html" class="nav-btn">Крипта</a>
+        </nav>
+
+        <h1>Прогноз погоды</h1>
+        <p class="subtitle">Москва • Интерактивный график</p>
+
+        <div class="days-tabs">
+            <button class="tab-btn" data-day="0">Вчера</button>
+            <button class="tab-btn active" data-day="1">Сегодня</button>
+            <button class="tab-btn" data-day="2">Завтра</button>
+            <button class="tab-btn" data-day="3">Послезавтра</button>
+            <button class="tab-btn" data-day="4">Послезавтра+1</button>
+        </div>
+
+        <div id="weather-info">
+            <p>Загрузка метеоданных...</p>
+        </div>
+
+        <div class="chart-container" style="height: 280px;">
+            <canvas id="weatherChart"></canvas>
+        </div>
+    </div>
+    <script src="scripts/weather.js"></script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    color: #f8fafc;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Стеклянная панель (Glassmorphism) */
+.container {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 550px;
+    transition: all 0.3s ease;
+}
+
+/* Навигационное меню */
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 30px;
+    background: rgba(15, 23, 42, 0.4);
+    padding: 6px;
+    border-radius: 14px;
+}
+
+.nav-btn {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover, .nav-btn.active {
+    color: #fff;
+    background: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+h1 {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(to right, #3b82f6, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 24px;
+}
+
+/* Формы и Инпуты */
+form, .input-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+input, select {
+    flex: 1;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px 18px;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+input:focus, select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+/* Список задач */
+ul { list-style: none; }
+
+li {
+    background: rgba(15, 23, 42, 0.4);
+    padding: 16px 20px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.delete-btn {
+    background: none;
+    color: #ef4444;
+    padding: 0;
+    font-size: 14px;
+}
+.delete-btn:hover {
+    background: none;
+    color: #dc2626;
+    transform: none;
+}
+
+/* Виджеты погоды и валют */
+.weather-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 16px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.weather-temp {
+    font-size: 42px;
+    font-weight: 800;
+}
+
+.chart-container {
+    position: relative;
+    margin-top: 15px;
+    width: 100%;
+    height: 220px;
+}
+
+.result-box {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    padding: 20px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 16px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+/* Вкладки для дней погоды */
+.days-tabs {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.days-tabs .tab-btn {
+    flex: 1;
+    background: rgba(15, 23, 42, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 8px 5px;
+    font-size: 12px;
+    color: #94a3b8;
+    border-radius: 8px;
+}
+
+.days-tabs .tab-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.days-tabs .tab-btn.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+/* Стили крипто-радара */
+.crypto-card {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 16px 20px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.crypto-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.crypto-name {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.crypto-ticker {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.crypto-market {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.crypto-price {
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+.crypto-change {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Статические цвета для 24-часового тренда */
+.crypto-up { color: #10b981; }
+.crypto-down { color: #ef4444; }
+
+/* Динамические вспышки (анимация обновления цены) */
+.crypto-card.flash-green {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.crypto-card.flash-red {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
