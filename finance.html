@@ -20,7 +20,7 @@
         <p class="subtitle">Кросс-курс в реальном времени</p>
 
         <div class="input-group" style="flex-direction: column; gap: 15px;">
-            <input type="number" id="amount" value="100" min="1">
+            <input type="text" id="amount" value="100" inputmode="decimal" oninput="this.value = this.value.replace(/,/g, '.').replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
             
             <div style="display: flex; gap: 10px; width: 100%;">
                 <select id="from-currency">
@@ -50,6 +50,7 @@
         <div id="finance-result" class="result-box">
             Расчет...
         </div>
+        <div class="mobile-spacer"></div>
     </div>
     <script src="scripts/finance.js"></script>
 </body>

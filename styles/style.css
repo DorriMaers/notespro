@@ -268,3 +268,169 @@ li {
     border-color: #ef4444;
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
 }
+
+/* ==========================================
+   ИСПРАВЛЕННАЯ МОБИЛЬНАЯ АДАПТАЦИЯ (экраны < 600px)
+   ========================================== */
+@media (max-width: 600px) {
+    /* Заставляем body занять ровно всю высоту экрана и убираем флекс-центрирование */
+    body {
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        min-height: 100vh !important;
+        height: 100vh !important;
+        overflow-x: hidden;
+    }
+
+    /* Контейнер теперь растягивается на весь экран смартфона */
+    .container {
+        padding: 16px 16px 0 16px !important;
+        border-radius: 0 !important; /* Убираем скругления у самого экрана */
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100vh !important;
+        height: 100vh !important;
+        background: transparent !important; /* Прозрачный, чтобы видеть общий градиент body */
+        
+        /* Включаем внутренний вертикальный скролл только для контента */
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-y: auto !important; 
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    /* Возвращаем красивый стеклянный фон карточкам, так как у контейнера его больше нет */
+    .crypto-card, li, .weather-summary, .result-box, .chart-container {
+        background: rgba(30, 41, 59, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        padding: 14px !important;
+        border-radius: 14px !important;
+    }
+
+    /* 1. ГЛАВНАЯ ШАПКА — ТЕПЕРЬ НА СЛЕДУЮЩЕМ УРОВНЕ ДНА */
+    .navigation {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        right: 0 !important;
+        top: auto !important;
+        z-index: 10000 !important;
+        
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 12px 10px 24px 10px !important; /* Отступ снизу для безрамочных экранов */
+        background: #0f172a !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        
+        display: flex !important;
+        justify-content: space-around !important;
+        gap: 6px !important;
+    }
+
+    .nav-btn {
+        flex: 1 !important;
+        padding: 10px 2px !important;
+        font-size: 12px !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-radius: 8px !important;
+    }
+
+    /* 3. ПОГОДА: КНОПКИ ДНЕЙ СТРОГО НАД ШАПКОЙ БЕЗ НАЛОЖЕНИЯ */
+    .days-tabs {
+        position: fixed !important;
+        bottom: 64px !important; /* Четко над главной навигацией (высота нижнего бара ~64px) */
+        left: 0 !important;
+        width: 100% !important;
+        right: 0 !important;
+        top: auto !important;
+        z-index: 9999 !important;
+        
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 10px 10px !important;
+        background: #0f172a !important; /* Плотный скрывающий фон */
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+        display: flex !important;
+        justify-content: space-between !important;
+        gap: 4px !important;
+    }
+
+    .days-tabs .tab-btn {
+        flex: 1 !important;
+        padding: 8px 2px !important;
+        font-size: 11px !important;
+        border-radius: 6px !important;
+    }
+
+    .chart-container {
+        height: 220px !important;
+        margin-top: 15px !important;
+    }
+
+    /* МОБИЛЬНАЯ РАСПОРКА (не дает контенту залезть под фиксированные кнопки) */
+    .mobile-spacer {
+        display: block !important;
+        width: 100% !important;
+        clear: both !important;
+        flex-shrink: 0 !important; /* Запрещаем сжимать распорку */
+    }
+
+    /* На обычных страницах */
+    .mobile-spacer {
+        height: 85px !important; 
+    }
+
+    /* На странице погоды */
+    .days-tabs ~ .mobile-spacer {
+        height: 155px !important; 
+    }
+
+    /* Убираем стрелочки (спиннеры) у input type="number" для Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Убираем стрелочки для Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    /* Цветовые статусы для задач */
+    li.deadline-overdue {
+        border-left: 5px solid #ef4444 !important; /* Просрочено — Красный */
+        background: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    li.deadline-warning {
+        border-left: 5px solid #eab308 !important; /* Мало времени (30%) — Желтый */
+        background: rgba(234, 179, 8, 0.1) !important;
+    }
+
+    li.deadline-normal {
+        border-left: 5px solid #3b82f6 !important; /* Все ок — Синий */
+    }
+
+    /* Стили для даты внутри задачи */
+    .todo-dates {
+        display: block;
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 4px;
+    }
+}
+
+/* Выключение распорки на ПК */
+@media (min-width: 601px) {
+    .mobile-spacer {
+        display: none !important;
+    }
+}

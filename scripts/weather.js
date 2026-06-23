@@ -40,18 +40,33 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function renderChart(hourlyData) {
-        const hoursLabels = ["00:00", "02:00", "04:00", "06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00"];
-        
-        const temps = [];
-        const rainMM = [];
+    let hoursLabels = [];
+    let targetIndices = [];
 
-        for (let i = 0; i < 24; i += 2) {
-            temps.push(hourlyData.temperature_2m[i]);
-            // Берем количество осадков в мм
-            rainMM.push(hourlyData.precipitation ? hourlyData.precipitation[i] : 0);
+    // Проверяем ширину экрана (если меньше 600px — это мобилка)
+    if (window.innerWidth <= 600) {
+        // Настройки для телефона: шаг 2 часа + финальный 23:00
+        hoursLabels = ["00:00", "02:00", "04:00", "06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00"];
+        targetIndices = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 23];
+    } else {
+        // Настройки для компьютера: каждый час от 00:00 до 23:00 (все 24 точки)
+        for (let i = 0; i < 24; i++) {
+            hoursLabels.push(`${String(i).padStart(2, '0')}:00`);
+            targetIndices.push(i);
         }
+    }
+    
+    const temps = [];
+    const rainMM = [];
 
-        const avgTemp = Math.round(temps.reduce((a, b) => a + b, 0) / temps.length);
+    // Заполняем массивы данными по выбранным индексам
+    targetIndices.forEach(i => {
+        temps.push(hourlyData.temperature_2m[i]);
+        rainMM.push(hourlyData.precipitation ? hourlyData.precipitation[i] : 0);
+    });
+
+    // Расчет средней температуры (оставляем как было, считаем по всем 24 часам для точности)
+    const avgTemp = (hourlyData.temperature_2m.reduce((a, b) => a + b, 0) / 24).toFixed(1);
         document.getElementById("weather-info").innerHTML = `
             <div class="weather-summary">
                 <div>

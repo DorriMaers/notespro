@@ -19,12 +19,17 @@
         <h1>Мои задачи</h1>
         <p class="subtitle">Локальное хранилище IndexedDB</p>
 
-        <form id="todo-form">
+        <form id="todo-form" style="display: flex; flex-direction: column; gap: 10px;">
             <input type="text" id="todo-input" placeholder="Добавить новую задачу..." required>
-            <button type="submit">Создать</button>
+            <div style="display: flex; gap: 10px;">
+                <label style="color: #64748b; font-size: 14px; align-self: center; white-space: nowrap;">Дедлайн:</label>
+                <input type="date" id="todo-deadline" required style="flex: 1;">
+                <button type="submit" style="margin: 0;">Создать</button>
+            </div>
         </form>
 
         <ul id="todo-list"></ul>
+        <div class="mobile-spacer"></div>
     </div>
     <script src="scripts/index.js"></script>
 </body>
