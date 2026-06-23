@@ -335,6 +335,28 @@ input[type="date"].date-placeholder:not(:focus)::before {
     position: absolute;
 }
 
+/* Железобетонное ограничение для инпутов, чтобы они не распирали экран */
+input, select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important; /* Заставляет браузер включать padding в общую ширину, а не раздувать инпут наружу */
+}
+
+/* Если инпуты валют стоят в одну строку (флекс), не даем им расширяться */
+.finance-inputs-row, .converter-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden; /* Обрезает случайные вылеты */
+}
+
+.finance-inputs-row input, .converter-row input {
+    flex: 1; /* Распределяет инпуты равномерно поровну */
+    min-width: 0; /* Критически важно: разрешает флекс-элементу сжиматься меньше своего дефолтного размера */
+}
+
 /* ==========================================
    ИСПРАВЛЕННАЯ МОБИЛЬНАЯ АДАПТАЦИЯ (экраны < 600px)
    ========================================== */
@@ -344,13 +366,9 @@ input[type="date"].date-placeholder:not(:focus)::before {
         padding: 0 !important;
         margin: 0 !important;
         display: block !important;
-        /* Старый vh оставляем как запасной вариант для древних телефонов */
-        min-height: 100vh !important; 
-        height: 100vh !important;
-        /* НОВАЯ МАГИЯ: dvh подстраивается под плавающие панели браузеров */
-        min-height: 100dvh !important; 
+        min-height: 100dvh !important;
         height: 100dvh !important;
-        overflow-x: hidden;
+        overflow: hidden !important; /* Запрещаем скролл самого экрана, скроллиться будет только контент */
     }
 
     .container {
@@ -359,16 +377,30 @@ input[type="date"].date-placeholder:not(:focus)::before {
         box-shadow: none !important;
         width: 100% !important;
         max-width: 100% !important;
-        /* Точно так же обновляем высоту контейнера */
-        min-height: 100vh !important;
-        height: 100vh !important;
-        min-height: 100dvh !important;
         height: 100dvh !important;
         background: transparent !important;
         
         display: flex !important;
         flex-direction: column !important;
-        overflow-y: auto !important; 
+        overflow: hidden !important; /* Прячем внешний скролл контейнера */
+    }
+
+    /* Направляем скролл только на списки и карточки, чтобы они уходили ПОД шапку */
+    #todo-list, .crypto-list, .finance-content, #weather-info, .chart-container {
+        overflow-y: auto !important;
+        flex: 1;
+        -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+    }
+
+    /* Гарантируем, что навигация вырвана из потока и сидит на дне экрана */
+    .navigation {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        z-index: 99999 !important; /* Максимальный приоритет */
+        background: #0f172a !important;
     }
 
     h1 {
@@ -381,27 +413,6 @@ input[type="date"].date-placeholder:not(:focus)::before {
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
         padding: 14px !important;
         border-radius: 14px !important;
-    }
-
-    /* 1. ГЛАВНАЯ ШАПКА — ТЕПЕРЬ НА СЛЕДУЮЩЕМ УРОВНЕ ДНА */
-    .navigation {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        right: 0 !important;
-        top: auto !important;
-        z-index: 10000 !important;
-        
-        border-radius: 0 !important;
-        margin: 0 !important;
-        padding: 12px 10px 24px 10px !important; /* Отступ снизу для безрамочных экранов */
-        background: #0f172a !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        
-        display: flex !important;
-        justify-content: space-around !important;
-        gap: 6px !important;
     }
 
     .nav-btn {
