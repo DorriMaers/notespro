@@ -278,23 +278,28 @@ li {
         padding: 0 !important;
         margin: 0 !important;
         display: block !important;
-        min-height: 100vh !important;
+        /* Старый vh оставляем как запасной вариант для древних телефонов */
+        min-height: 100vh !important; 
         height: 100vh !important;
+        /* НОВАЯ МАГИЯ: dvh подстраивается под плавающие панели браузеров */
+        min-height: 100dvh !important; 
+        height: 100dvh !important;
         overflow-x: hidden;
     }
 
-    /* Контейнер теперь растягивается на весь экран смартфона */
     .container {
         padding: 16px 16px 0 16px !important;
-        border-radius: 0 !important; /* Убираем скругления у самого экрана */
+        border-radius: 0 !important;
         box-shadow: none !important;
         width: 100% !important;
         max-width: 100% !important;
+        /* Точно так же обновляем высоту контейнера */
         min-height: 100vh !important;
         height: 100vh !important;
-        background: transparent !important; /* Прозрачный, чтобы видеть общий градиент body */
+        min-height: 100dvh !important;
+        height: 100dvh !important;
+        background: transparent !important;
         
-        /* Включаем внутренний вертикальный скролл только для контента */
         display: flex !important;
         flex-direction: column !important;
         overflow-y: auto !important; 
