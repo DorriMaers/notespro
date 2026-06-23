@@ -6,6 +6,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let db;
 
+    // Ограничиваем выбор даты в календаре: запрещаем дни до сегодняшнего
+    function setMinDeadlineDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        deadlineInput.min = `${year}-${month}-${day}`; // Атрибут min блокирует прошлые дни в календаре
+    }
+    setMinDeadlineDate();
+
     // Инициализация IndexedDB
     const request = indexedDB.open("TodoDatabase", 1);
 
@@ -30,24 +40,38 @@ document.addEventListener("DOMContentLoaded", function() {
         e.preventDefault();
         
         const now = new Date();
+        
+        // Корректный разбор даты дедлайна из инпута (по местному времени, а не UTC)
+        const [year, month, day] = deadlineInput.value.split('-').map(Number);
+        const deadlineDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+        // Дополнительная JS-проверка, чтобы точно нельзя было сохранить прошлый день
+        const startOfToday = new Date();
+        startOfToday.setHours(0,0,0,0);
+        if (deadlineDate < startOfToday) {
+            alert("Нельзя выбрать дедлайн в прошлом!");
+            return;
+        }
+
         const newTodo = {
             text: input.value,
-            createdAt: now.toISOString(), // Сохраняем дату и время создания в формате ISO
-            deadline: new Date(deadlineInput.value).toISOString(), // Дедлайн
+            createdAt: now.getTime(), // Храним timestamp чисел для точных математических сравнений
+            deadline: deadlineDate.getTime(),
             completed: false
         };
 
         const transaction = db.transaction(["todos"], "readwrite");
-        const store = transaction.objectStore(transaction.rows || "todos");
+        const store = transaction.objectStore("todos");
         
         store.add(newTodo).onsuccess = function() {
             input.value = "";
             deadlineInput.value = "";
+            setMinDeadlineDate(); // Пересчитываем минимальную дату
             displayTodos();
         };
     });
 
-    // Функция отображения и умной сортировки задач
+    // Отображение и умная сортировка
     function displayTodos() {
         if (!db) return;
         todoList.innerHTML = "";
@@ -57,58 +81,49 @@ document.addEventListener("DOMContentLoaded", function() {
         
         store.getAll().onsuccess = function(event) {
             const todos = event.target.result;
-            const now = new Date();
+            const now = new Date().getTime();
 
-            // Рассчитываем статус и добавляем вес для сортировки
             todos.forEach(todo => {
-                const created = new Date(todo.createdAt);
-                const deadline = new Date(todo.deadline);
-                
-                // Устанавливаем дедлайн на конец выбранного дня (23:59:59)
-                deadline.setHours(23, 59, 59, 999);
-
                 if (todo.completed) {
                     todo.status = 'completed';
-                    todo.sortWeight = 4; // Выполненные всегда в самом низу
-                } else if (now > deadline) {
+                    todo.sortWeight = 4; // Выполненные задачи падают вниз
+                } else if (now > todo.deadline) {
                     todo.status = 'overdue';
-                    todo.sortWeight = 1; // Просроченные — самый высокий приоритет (вверх)
+                    todo.sortWeight = 1; // Просроченные — на самый верх
                 } else {
-                    // Рассчитываем "окно времени" в миллисекундах
-                    const totalDuration = deadline - created;
-                    const timeRemaining = deadline - now;
+                    const totalDuration = todo.deadline - todo.createdAt;
+                    const timeRemaining = todo.deadline - now;
                     
-                    // Если осталось меньше 30% от первоначального времени
-                    if (timeRemaining / totalDuration <= 0.3) {
+                    // Если осталось меньше или равно 30% времени от момента создания до дедлайна
+                    if (totalDuration > 0 && (timeRemaining / totalDuration) <= 0.3) {
                         todo.status = 'warning';
-                        todo.sortWeight = 2; // Предупреждение — второй приоритет
+                        todo.sortWeight = 2; // Дедлайн близко — второй по важности приоритет
                     } else {
                         todo.status = 'normal';
-                        todo.sortWeight = 3; // Обычные задачи
+                        todo.sortWeight = 3; // Все хорошо
                     }
                 }
             });
 
-            // Сортируем: сначала вес (1, 2, 3, 4), если вес одинаковый — по дате дедлайна (ближайшие выше)
+            // Сортировка: Сначала по sortWeight (1 -> 2 -> 3 -> 4). 
+            // При равном весе — те, у кого дедлайн ближе всего, стоят выше.
             todos.sort((a, b) => {
                 if (a.sortWeight !== b.sortWeight) {
                     return a.sortWeight - b.sortWeight;
                 }
-                return new Date(a.deadline) - new Date(b.deadline);
+                return a.deadline - b.deadline;
             });
 
-            // Рендерим отсортированный список
+            // Рендер элементов списка
             todos.forEach(todo => {
                 const li = document.createElement("li");
                 
-                // Присваиваем класс в зависимости от статуса дедлайна
                 if (todo.completed) {
                     li.classList.add("completed");
                 } else {
                     li.classList.add(`deadline-${todo.status}`);
                 }
 
-                // Красиво форматируем даты для вывода пользователю
                 const dateCreatedStr = new Date(todo.createdAt).toLocaleDateString('ru-RU', {hour: '2-digit', minute:'2-digit'});
                 const dateDeadlineStr = new Date(todo.deadline).toLocaleDateString('ru-RU');
 
@@ -120,13 +135,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     <button class="delete-btn" data-id="${todo.id}">✕</button>
                 `;
 
-                // Клик по задаче меняет статус выполнения
                 li.addEventListener("click", function(e) {
                     if (e.target.classList.contains("delete-btn")) return;
                     toggleTodo(todo.id, todo.completed);
                 });
 
-                // Клик по крестику удаляет задачу
                 li.querySelector(".delete-btn").addEventListener("click", function() {
                     deleteTodo(todo.id);
                 });

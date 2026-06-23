@@ -15,13 +15,14 @@ document.addEventListener("DOMContentLoaded", function() {
     // Главная функция загрузки погоды
     function loadWeatherForDay(offset) {
         const targetDate = getFormattedDate(offset);
+        const nextDate = getFormattedDate(offset + 1); // Дата следующего дня для 25-й точки
         
-        // Меняем параметр на стабильный "precipitation" (осадки в мм)
         const baseUrl = offset < 0 
             ? "https://archive-api.open-meteo.com/v1/archive" 
             : "https://api.open-meteo.com/v1/forecast";
 
-        const url = `${baseUrl}?latitude=55.75&longitude=37.62&hourly=temperature_2m,precipitation&start_date=${targetDate}&end_date=${targetDate}`;
+        // Запрашиваем интервал от целевого дня до следующего дня включительно
+        const url = `${baseUrl}?latitude=55.75&longitude=37.62&hourly=temperature_2m,precipitation&start_date=${targetDate}&end_date=${nextDate}`;
 
         document.getElementById("weather-info").innerHTML = "<p class='loading'>Загрузка данных...</p>";
 
@@ -40,33 +41,36 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function renderChart(hourlyData) {
-    let hoursLabels = [];
-    let targetIndices = [];
+        let hoursLabels = [];
+        let targetIndices = [];
 
-    // Проверяем ширину экрана (если меньше 600px — это мобилка)
-    if (window.innerWidth <= 600) {
-        // Настройки для телефона: шаг 2 часа + финальный 23:00
-        hoursLabels = ["00:00", "02:00", "04:00", "06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00"];
-        targetIndices = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
-    } else {
-        // Настройки для компьютера: каждый час от 00:00 до 23:00 (все 24 точки)
-        for (let i = 0; i < 24; i++) {
-            hoursLabels.push(`${String(i).padStart(2, '0')}:00`);
-            targetIndices.push(i);
+        // Проверяем ширину экрана (если меньше 600px — это мобилка)
+        if (window.innerWidth <= 600) {
+            // Настройки для телефона: шаг 2 часа + финальная точка 00:00 (индекс 24 — это первый час следующих суток)
+            hoursLabels = ["00:00", "02:00", "04:00", "06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00", "00:00 "];
+            targetIndices = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
+        } else {
+            // Настройки для компьютера: каждый час суток (24 точки) + точка 00:00 следующего дня (25-я точка)
+            for (let i = 0; i < 24; i++) {
+                hoursLabels.push(`${String(i).padStart(2, '0')}:00`);
+                targetIndices.push(i);
+            }
+            hoursLabels.push("00:00 "); // Пробел в конце строки нужен, чтобы Chart.js не счёл этот лейбл дубликатом первого
+            targetIndices.push(24);
         }
-    }
-    
-    const temps = [];
-    const rainMM = [];
+        
+        const temps = [];
+        const rainMM = [];
 
-    // Заполняем массивы данными по выбранным индексам
-    targetIndices.forEach(i => {
-        temps.push(hourlyData.temperature_2m[i]);
-        rainMM.push(hourlyData.precipitation ? hourlyData.precipitation[i] : 0);
-    });
+        // Заполняем массивы данными по выбранным индексам
+        targetIndices.forEach(i => {
+            temps.push(hourlyData.temperature_2m[i]);
+            rainMM.push(hourlyData.precipitation ? hourlyData.precipitation[i] : 0);
+        });
 
-    // Расчет средней температуры (оставляем как было, считаем по всем 24 часам для точности)
-    const avgTemp = (hourlyData.temperature_2m.reduce((a, b) => a + b, 0) / 24).toFixed(1);
+        // Расчет средней температуры (считаем строго по первым 24 часам выбранного дня для точности)
+        const avgTemp = (hourlyData.temperature_2m.slice(0, 24).reduce((a, b) => a + b, 0) / 24).toFixed(1);
+        
         document.getElementById("weather-info").innerHTML = `
             <div class="weather-summary">
                 <div>
@@ -123,7 +127,6 @@ document.addEventListener("DOMContentLoaded", function() {
                         type: 'linear',
                         position: 'right',
                         min: 0,
-                        // Автоматическое масштабирование шкалы осадков, но не меньше 5 мм для красоты
                         max: Math.max(...rainMM, 5),
                         title: { display: true, text: 'Осадки (мм)', color: '#10b981' },
                         grid: { display: false },

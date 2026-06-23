@@ -269,6 +269,62 @@ li {
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
 }
 
+#todo-list li {
+    position: relative;
+    cursor: pointer; /* Превращает курсор в палец при наведении */
+    transition: all 0.2s ease; /* Плавное подсвечивание при наведении */
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.4); /* Базовый полупрозрачный фон для обычных задач */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#todo-list li.deadline-normal {
+    border-left: 5px solid #3b82f6 !important; /* Уверенная синяя полоса слева */
+}
+
+/* 2. Дедлайн близко (Меньше 30% времени) */
+#todo-list li.deadline-warning {
+    border-left: 5px solid #f59e0b !important; /* Насыщенный янтарный/жёлтый индикатор */
+    background: rgba(245, 158, 11, 0.08) !important; /* Мягкая жёлтая подсветка фона */
+    border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+/* 3. Просрочено */
+#todo-list li.deadline-overdue {
+    border-left: 5px solid #ef4444 !important; /* Яркий красный индикатор */
+    background: rgba(239, 68, 68, 0.08) !important; /* Мягкая красная подсветка фона */
+    border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+/* 4. Выполненная задача (Глушит все цвета дедлайнов) */
+#todo-list li.completed {
+    border-left: 5px solid #64748b !important; /* Серый индикатор */
+    background: rgba(15, 23, 42, 0.3) !important;
+    opacity: 0.5; /* Делает задачу полупрозрачной */
+}
+
+/* Жирный шрифт для названия задачи */
+#todo-list .todo-text {
+    font-weight: 700; /* Делаем текст жирным */
+    font-size: 16px;
+    color: #f8fafc; /* Светлый контрастный цвет */
+    display: block; /* Гарантирует, что название займет свою строку */
+    margin-bottom: 4px; /* Небольшой отступ до дат */
+}
+
+/* Стили для блока дат (теперь одинаково красиво и на ПК, и на смартфонах) */
+#todo-list .todo-dates {
+    display: block; /* Переносит даты строго под название */
+    font-size: 12px; /* Уменьшенный размер */
+    color: #64748b; /* Полутемный, приглушенный серый цвет */
+    font-weight: 400; /* Обычная толщина для контраста с заголовком */
+}
+
 /* ==========================================
    ИСПРАВЛЕННАЯ МОБИЛЬНАЯ АДАПТАЦИЯ (экраны < 600px)
    ========================================== */
@@ -437,5 +493,9 @@ li {
 @media (min-width: 601px) {
     .mobile-spacer {
         display: none !important;
+    }
+    #todo-list li:hover {
+        background: rgba(30, 41, 59, 0.7);
+        transform: translateX(4px); /* Карточка слегка сдвигается вправо при наведении */
     }
 }
